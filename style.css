@@ -1,0 +1,19 @@
+#comentarios {
+  padding: 20px;
+  background: #f9f9f9;
+}
+
+#comentarios input,
+#comentarios textarea,
+#comentarios select {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+}
+
+#comentarios button {
+  background: green;
+  color: white;
+  padding: 10px;
+  border: none;
+}
