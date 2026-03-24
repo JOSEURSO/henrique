@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comentários e Curtidas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      background: #007BFF;
+      color: white;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .comentario {
+      background: #f9f9f9;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      position: relative;
+    }
+
+    .topo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #ddd;
+    }
+
+    .like {
+      cursor: pointer;
+      color: red;
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    .delete {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Comentários e Depoimentos</h2>
+
+    <input type="text" id="nome" placeholder="Seu nome">
+    <textarea id="comentario" placeholder="Digite seu comentário"></textarea>
+
+    <label>Foto do usuário:</label>
+    <input type="file" id="foto" accept="image/*">
+
+    <button onclick="adicionarComentario()">Enviar</button>
+
+    <div id="listaComentarios"></div>
+  </div>
+
+  <script>
+    let comentarios = JSON.parse(localStorage.getItem('comentarios')) || [];
+
+    function salvar() {
+      localStorage.setItem('comentarios', JSON.stringify(comentarios));
+    }
+
+    function renderizar() {
+      const lista = document.getElementById('listaComentarios');
+      lista.innerHTML = '';
+
+      comentarios.forEach((c, index) => {
+        const div = document.createElement('div');
+        div.className = 'comentario';
+
+        div.innerHTML = `
+          <span class="delete" onclick="excluir(${index})">🗑️</span>
+
+          <div class="topo">
+            ${c.foto ? `<img src="${c.foto}" class="avatar">` : `<div class="avatar"></div>`}
+            <strong>${c.nome}</strong>
+          </div>
+
+          <p>${c.texto}</p>
+
+          <span class="like" onclick="curtir(${index})">❤️ ${c.likes}</span>
+        `;
+
+        lista.appendChild(div);
+      });
+    }
+
+    function adicionarComentario() {
+      const nome = document.getElementById('nome').value;
+      const texto = document.getElementById('comentario').value;
+      const file = document.getElementById('foto').files[0];
+
+      if (!nome || !texto) return alert('Preencha tudo!');
+
+      const novoComentario = {
+        nome,
+        texto,
+        foto: null,
+        likes: 0
+      };
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          novoComentario.foto = e.target.result;
+          comentarios.push(novoComentario);
+          salvar(); renderizar();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        comentarios.push(novoComentario);
+        salvar(); renderizar();
+      }
+
+      document.getElementById('nome').value = '';
+      document.getElementById('comentario').value = '';
+      document.getElementById('foto').value = '';
+    }
+
+    function curtir(i) {
+      comentarios[i].likes++;
+      salvar(); renderizar();
+    }
+
+    function excluir(i) {
+      comentarios.splice(i, 1);
+      salvar(); renderizar();
+    }
+
+    renderizar();
+  </script>
+</body>
+</html>
